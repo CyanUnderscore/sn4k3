@@ -76,39 +76,33 @@ int main() {
         // as long as there is event in the queue
         while( SDL_PollEvent(&event) ){
             
-            switch (event.type) {
-                case SDL_QUIT:
-                    //quit the program
-                    quit = true;
-                case SDL_KEYDOWN:
-                    switch (event.key.keysym.sym){
-                        case SDLK_e:
-                            quit = true;
-                        case SDLK_t:
-                            cout << "you pressed t" << endl;
-                        case SDLK_z:{
-                            snake->cur_mov = moves::up;
-                            cout << "up" << endl;
-                        };
-                        case SDLK_s:{
-                            snake->cur_mov = moves::down;
-                            cout << "down" << endl;
-                        };
-                        case SDLK_d:{
-                            snake->cur_mov = moves::right;
-                            cout << "right" << endl;
-                        };
-                        case SDLK_q:{
-                            snake->cur_mov = moves::left;
-                            cout << "left" << endl;
-                        };
-                        default:
-                            {}
-
-                        
-                    }
-                default: 
-                    {}
+            if (event.type == SDL_QUIT) {
+                //quit the program
+                quit = true;
+            }
+            else if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_e){
+                        quit = true;
+                }
+                else if (event.key.keysym.sym == SDLK_t){
+                    cout << "you pressed t" << endl;
+                }
+                else if (event.key.keysym.sym == SDLK_z){
+                    snake->cur_mov = moves::up;
+                        cout << "up" << endl;
+                }
+                else if (event.key.keysym.sym == SDLK_s){
+                    snake->cur_mov = moves::down;
+                        cout << "down" << endl;
+                }
+                else if (event.key.keysym.sym == SDLK_d){
+                    snake->cur_mov = moves::right;
+                        cout << "right" << endl;
+                }
+                else if (event.key.keysym.sym == SDLK_q){
+                    snake->cur_mov = moves::left;
+                        cout << "left" << endl;
+                }
             }
         }
         SDL_UpdateWindowSurface( window );
