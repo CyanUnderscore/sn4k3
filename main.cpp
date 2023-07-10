@@ -9,6 +9,8 @@ using namespace std;
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 const int SCREEN_BPP = 32;
+const int SNAKE_SPEED = 10; //pixel per update loop
+const int START_SIZE = 1;
 const char* name = "sn4k3";
 
 //The surfaces
@@ -25,17 +27,26 @@ typedef enum moves {
     left
 }moves;
 
+typedef struct Pos{
+    int x;
+    int y;
+}Pos;
+
 typedef struct Snake {
     int lenght;
     moves cur_mov;
+    Pos *positions;
 }Snake;
 
 Snake *snake = NULL;
 
-void SetSnake() {
+void SetSnake(bool allocated) {
     snake = new Snake();
-    snake->lenght = 0;
+    snake->lenght = START_SIZE;
     snake->cur_mov = moves::right;
+    if (allocated) {snake->position = (Pos*) realloc(lenght * sizeof(Pos));}
+    else {snake->position = (Pos*) malloc(lenght * sizeof(Pos)); }
+    
 }
 
 
@@ -105,6 +116,7 @@ int main() {
                 }
             }
         }
+        UpdateSnake();
         SDL_UpdateWindowSurface( window );
     }
     clean_up();
