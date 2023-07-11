@@ -72,12 +72,24 @@ void DrawRect() {
 }
 
 void UpdateSnake() {
+    // moves
     for (int i = snake->lenght -1; i > 0; i--){
         snake->positions[i] = snake->positions[i-1];
     }
-    snake->positions[0].x += SNAKE_SPEED;
-    string strpos = snake->positions[0].x;
-    cout << strpos << endl;
+    switch(snake->cur_mov){
+        case moves::up:
+            snake->positions[0].y -= SNAKE_SPEED;
+            break;
+        case moves::down:
+            snake->positions[0].y += SNAKE_SPEED;
+            break;
+        case moves::left:
+            snake->positions[0].x -= SNAKE_SPEED;
+            break;
+        case moves::right:
+            snake->positions[0].x += SNAKE_SPEED;
+            break;
+    }
     DrawRect();
 }
 
@@ -91,7 +103,12 @@ void PlaceSnake() {
     DrawRect();
 }
 
-
+bool IsItDead() {
+    if (snake->positions[0].x < 0 || snake->positions[0].x > SCREEN_WIDTH || snake->positions[0].y < 0 || snake->positions[0].y > SCREEN_HEIGHT) {
+        return true;
+    }
+    return false;
+}
 
 
 bool Init() {
@@ -173,7 +190,8 @@ int main() {
         //gameplay loop here 
         
         UpdateSnake();
-        sleep_for(nanoseconds(1000000));
+        quit = IsItDead();
+        sleep_for(nanoseconds(100000000));
         SDL_UpdateWindowSurface( window );
     }
     clean_up();
