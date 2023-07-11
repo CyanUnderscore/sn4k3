@@ -119,6 +119,16 @@ void Update() {
         GrowSnake();
     }
 
+    if (snake->positions[0].x < 0 ) {
+        snake->positions[0].x = SCREEN_WIDTH;
+    } else if (snake->positions[0].y < 0 ) {
+        snake->positions[0].y = SCREEN_HEIGHT;
+    } else if (snake->positions[0].x > SCREEN_WIDTH ) {
+        snake->positions[0].x = 0;
+    } else if (snake->positions[0].y > SCREEN_HEIGHT ) {
+        snake->positions[0].y = 0;
+    }
+
     DrawRect();
 }
 
@@ -134,9 +144,6 @@ void PlaceSnake() {
 }
 
 bool IsItDead() {
-    if (snake->positions[0].x < 0 || snake->positions[0].x > SCREEN_WIDTH || snake->positions[0].y < 0 || snake->positions[0].y > SCREEN_HEIGHT) {
-        return true;
-    }
     for (int i = 2; i < snake->lenght; i++){
         if (snake->positions[0].x == snake->positions[i].x && snake->positions[0].y == snake->positions[i].y) {
             return true;
