@@ -4,6 +4,8 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <stdlib.h>
+#include <time.h> 
 
 using namespace std::this_thread;
 using namespace std::chrono;
@@ -14,7 +16,7 @@ const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 const int SCREEN_BPP = 32;
 const int SNAKE_SPEED = 10;
-const int START_SIZE = 6;
+const int START_SIZE = 2;
 const char* name = "sn4k3";
 
 //The surfaces
@@ -44,6 +46,7 @@ typedef struct Snake {
 }Snake;
 
 Snake *snake = NULL;
+Pos *power_up = NULL;
 
 void SetSnake(bool allocated) {
     snake = new Snake();
@@ -51,6 +54,18 @@ void SetSnake(bool allocated) {
     snake->cur_mov = moves::right;
     if (allocated) {snake->positions = (Pos*) realloc(snake->positions, snake->lenght * sizeof(Pos));}
     else {snake->positions = (Pos*) malloc(snake->lenght * sizeof(Pos)); }
+}
+
+void PlacePowerUp() {
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+    power_up->x = (rand() % SCREEN_WIDTH/10) * 10;
+    power_up->y = (rand() % SCREEN_HEIGHT/10) *10;
+}
+
+void GrowSnake(){
+    snake->lenght++;
+    snake->positions = (Pos*) realloc(snake->positions, snake->lenght * sizeof(Pos));
+    snake->positions[snake->lenght-1] = snake->positions[snake->lenght-1];
 }
 
 void DrawRect() {
@@ -68,10 +83,18 @@ void DrawRect() {
         snake_part.y = snake->positions[i].y;
         SDL_RenderDrawRect(renderer, &snake_part);
     }
+    SDL_Rect power_up_rect;
+    power_up_rect.w = 8;
+    power_up_rect.h = power_up_rect.w;
+    power_up_rect.x = power_up->x;
+    power_up_rect.y = power_up->y;
+    SDL_SetRenderDrawColor(renderer, 255 , 0 , 0, 255);
+    SDL_RenderDrawRect(renderer, &power_up_rect);
+
     SDL_RenderPresent(renderer);
 }
 
-void UpdateSnake() {
+void Update() {
     // moves
     for (int i = snake->lenght -1; i > 0; i--){
         snake->positions[i] = snake->positions[i-1];
@@ -90,8 +113,15 @@ void UpdateSnake() {
             snake->positions[0].x += SNAKE_SPEED;
             break;
     }
+
+    if (snake->positions[0].x == power_up->x && snake->positions[0].y == power_up->y) {
+        PlacePowerUp();
+        GrowSnake();
+    }
+
     DrawRect();
 }
+
 
 void PlaceSnake() {
     snake->positions[0].x = SCREEN_WIDTH/2;
@@ -106,6 +136,11 @@ void PlaceSnake() {
 bool IsItDead() {
     if (snake->positions[0].x < 0 || snake->positions[0].x > SCREEN_WIDTH || snake->positions[0].y < 0 || snake->positions[0].y > SCREEN_HEIGHT) {
         return true;
+    }
+    for (int i = 2; i < snake->lenght; i++){
+        if (snake->positions[0].x == snake->positions[i].x && snake->positions[0].y == snake->positions[i].y) {
+            return true;
+        }
     }
     return false;
 }
@@ -128,14 +163,6 @@ bool Init() {
         return true;
     }
 
-
-    /*screen = SDL_GetWindowSurface(window);
-    if (screen == nullptr) {
-        cout << "can't get the window surface" << endl;
-        return true;
-    }
-
-    */
     cout << "initialization completed" << endl;
     return false;
 }
@@ -147,12 +174,16 @@ void clean_up(){
 }
 
 int main() {
+    
     SetSnake(false);
     SDL_Event event;
     bool quit = Init();
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 0,0,0,0);
+    power_up = new Pos();
+    PlacePowerUp();
     PlaceSnake();
+    
    
     while (!quit) {
         // as long as there is event in the queue
@@ -189,7 +220,7 @@ int main() {
         }
         //gameplay loop here 
         
-        UpdateSnake();
+        Update();
         quit = IsItDead();
         sleep_for(nanoseconds(100000000));
         SDL_UpdateWindowSurface( window );
